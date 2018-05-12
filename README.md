@@ -7,8 +7,7 @@ ASUS TM-AC1900을 개조한 AC68U 공유기의 CPU, load, memory, 온도, 네트
 등 상황을 1분마다 수집(공유기에서 스크립트로 수집하여 NAS의 influxdb에 저장)하여 이쁘게 그래프로
 (NAS에 설치된 grafana가) 그려줍니다.
 
-
-
+<img src="images/1.png">
 
 먼저, 본 작업을 하는데 필요한 것은 다음과 같습니다.
 
@@ -21,7 +20,7 @@ ASUS TM-AC1900을 개조한 AC68U 공유기의 CPU, load, memory, 온도, 네트
 - 본 강좌 내용을 그대로 따라하시려면 docker 지원 가능한 Synology NAS 기종을 사용
 - 제가 참고한 블로그와 같이 NAS가 아닌 별도의 서버가 있어도 가능할 듯 합니다.
 
-    
+<br>    
 이제부터 설치 과정 설명을 시작하겠습니다.
 
 0. NAS의 IP 주소는 고정인 것이 좋습니다. 공유기에서 NAS 주소로 데이터를 쏴 줘야 하기 때문에..
@@ -43,15 +42,20 @@ sudo -i 해서 root 권한으로 실행하시면 됩니다.
 docker 사용은 ssh 접속해서 root 권한으로 커맨드로 실행하시면 됩니다.
 
 - docker 사용 디렉토리 생성
+```
 # mkdir -p /volume1/docker/influxdb/db
 # cd /volume1/docker/influxdb
+```
 
 - 설정 파일 생성
+```
 # docker run --rm influxdb influxd config > /volume1/docker/influxdb/influxdb.conf
+```
 
 여기까지 하면 /volume1/docker/influxdb/influxdb.conf 설정 파일이 생성됩니다.
 
 - docker 이미지 생성 및 실행
+```
 # docker run -d \
       --name=influxdb \
       -p 8086:8086 \
@@ -59,18 +63,23 @@ docker 사용은 ssh 접속해서 root 권한으로 커맨드로 실행하시면
       -v /volume1/docker/influxdb/db:/var/lib/influxdb \
       -e INFLUXDB_ADMIN_ENABLED=true \
       influxdb -config /etc/influxdb/influxdb.conf
+```
 
 influxdb container 생성이 끝났습니다.
 
 다음 명령으로, grafana에서 사용할 DB를 만들어 줍니다.
 
+```
 # curl -i -XPOST http://localhost:8086/query --data-urlencode "q=CREATE DATABASE grafana_asus"
+```
 
 다음과 같이 결과가 출력되면 influxdb가 잘 동작하는 겁니다.
+```
 HTTP/1.1 200 OK
 Content-Type: application/json
 ...
 {"results":[{"statement_id":0}]}
+```
 
 
 2. 역시 NAS에 docker로 grafana 설치 
@@ -78,12 +87,14 @@ Content-Type: application/json
   라고 합니다. 자세한 설명은 생략...
   
 - grafana 설치는 좀더 간단하게 됩니다.
+```
 # docker run -d --name=grafana -p 3000:3000 grafana/grafana
+```
 
 - 이렇게 설치한 후 웹브라우저에서 http://192.168.0.50:3000 접속해보면 바로 로그인 창이 나옵니다.
   (NAS의 IP 주소가 다르시다면 그 주소로...)
 
-
+<img src="images/2.png">
 
 - 초기 ID/Password는 admin/admin입니다. 접속 후 설정 화면 들어가서 id, password만 미리 바꿔두시면
   됩니다.
@@ -94,7 +105,7 @@ Content-Type: application/json
 - 위에서 말씀드린대로 공유기는 Merlin 펌웨어 사용중이어야 합니다. (JFFS 파티션 사용을 위해)
 - 먼저 JFFS 파티션 사용을 설정해야 합니다. (관리-시스템 메뉴)
 
-
+<img src="images/3.png">
 
 - 예전 버전 Merlin 펌에는 "Enable JFFS partition" 설정도 있었던 모양인데, 현재 최신 버전엔
   존재하지 않고 기본적으로 JFFS 파티션 사용은 가능한 상태였습니다.
@@ -103,10 +114,12 @@ Content-Type: application/json
 - 리부팅 후 다시 공유기에 ssh로 접근하여 /jffs 디렉토리 아래에 configs, scripts 디렉토리가
   생겼는지 확인합니다.
   
+```
 admin@RT-AC68U:/tmp/home/root# ls -l /jffs
 drwxr-xr-x 2 admin root 0 Feb 14 2017 /jffs/configs
 drwxr-xr-x 3 admin root 0 May 10 11:02 /jffs/scripts
 ...
+```
 
 - 이제 수집 script를 설치할 준비가 되었습니다.
 - 먼저 공유기 내에 /jffs/scripts/routerstats 디렉토리를 생성하고, 첨부한 scripts_20180510.zip 
@@ -116,27 +129,37 @@ drwxr-xr-x 3 admin root 0 May 10 11:02 /jffs/scripts
 - todb2.sh 파일을 vi로 열어보시면 4번째 줄에 자료를 저장할 influxdb의 주소를 지정하게 되어 있습니다.
   저는 NAS의 IP가 192.168.0.50이라 다음과 같이 되어 있는데, 다른 주소라면 적절히 수정해 주시면 됩니다.
   
-  dbhost="192.168.0.50:8086"
+```
+dbhost="192.168.0.50:8086"
+```
   
 - 스크립트를 1분마다 돌리는 cron 작업을 등록해 봅니다.
+```
 admin@RT-AC68U:/tmp/home/root# cru a routerstats "* * * * * /jffs/scripts/routerstats/routerstats.sh"
+```
 
 - 다음 명령으로 cron 작업 내역을 확인할 수 있습니다.
+```
 admin@RT-AC68U:/tmp/home/root# cru l
 * * * * * /jffs/scripts/routerstats/routerstats.sh #routerstats#
+```
 
 - 이제 공유기의 CPU, load, memory, 온도, 네트워크 트래픽, 네트워크 에러 등 지표가 NAS에 설치된 
   influxdb에 1분마다 저장되고 있습니다.
 
 - 그런데 이 cron 작업은 공유기가 재부팅 되면 남아 있지 않습니다.
   그래서, 공유기가 시작할 때 cron 작업을 등록하는 스크립트를 작성해 봅니다.
+```
 admin@RT-AC68U:/jffs/scripts# echo '#!/bin/sh' > /jffs/scripts/init-start
 admin@RT-AC68U:/jffs/scripts# echo 'cru a routerstats "* * * * * /jffs/scripts/routerstats/routerstats.sh"' >> /jffs/scripts/init-start
 admin@RT-AC68U:/jffs/scripts# chmod a+x /jffs/scripts/init-start
+```
 
 - 공유기 재부팅 후 'cru l' 명령으로 cron 작업 등록이 잘 되어 있는지 확인해 봅니다. 
+```
 admin@RT-AC68U:/tmp/home/root# cru l
 * * * * * /jffs/scripts/routerstats/routerstats.sh #routerstats#
+```
 
 
 4. grafana 설정
@@ -148,17 +171,17 @@ admin@RT-AC68U:/tmp/home/root# cru l
   들어갑니다.
   "Add data source"를 클릭하고, 다음과 같이 설정하고 "Save & Test"를 눌러 저장합니다.
 
-
-  
+<img src="images/4.png">
 
 - Home - "Import dashboard" - "Upload .json File"하여 첨부한 json 파일을 업로드하여 import합니다.
 - 앞에서 influxdb에 데이터가 제대로 쌓이고 있었다면, import된 dashboard에 데이터가 짜잔! 하고
   나타날 겁니다.
 
+<img src="images/5.png">
 
 
 여기까지 읽어주셔서 감사합니다.
-혹시 잘 안되는 부분은 댓글 남겨주시면 제가 할수 있는 데까진 더 설명해 드리겠습니다.
+혹시 잘 안되는 부분은 이슈에 글 남겨주시면 제가 할수 있는 데까진 더 설명해 드리겠습니다.
 
 혹시 제가 수집하여 그린 그래프 외에 추가하면 도움이 될만한 데이터가 있으면 알려주셔도 좋을 것 같습니다.
 수집 가능한 리소스이면 추가해 보겠습니다.
