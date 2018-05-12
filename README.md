@@ -26,6 +26,7 @@ ASUS TM-AC1900을 개조한 AC68U 공유기의 CPU, load, memory, 온도, 네트
 0. NAS의 IP 주소는 고정인 것이 좋습니다. 공유기에서 NAS 주소로 데이터를 쏴 줘야 하기 때문에..
 - 저는 공유기(192.168.0.1)에서 NAS가 항상 192.168.0.50 주소를 받도록 설정해 뒀습니다.
 - 다른 분들도 NAS는 port forwarding 설정을 하기 위해 고정 주소를 사용하고 계실거라 생각합니다.
+- 아래 글에서도 NAS의 IP가 192.168.0.50이라 가정하고 설명합니다. 다른 주소를 사용하시면 적절히 변경해 주세요.
 
 
 1. NAS에 docker로 InfluxDB 설치
@@ -163,7 +164,7 @@ admin@RT-AC68U:/tmp/home/root# cru l
 
 
 4. grafana 설정
-- 웹브라우저로 grafana에 접속합니다. (주소: http://nas_ip:3000)
+- 웹브라우저로 grafana에 접속합니다. (주소: http://192.168.0.50:3000)
 - 아까 변경해 둔 ID, password로 로그인 합니다.
 
 - Data Source 추가
