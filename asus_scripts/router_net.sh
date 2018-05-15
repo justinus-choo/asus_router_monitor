@@ -14,9 +14,11 @@ echo $new_epoch > $old_epoch_file
 interval=`expr $new_epoch - $old_epoch` # seconds since last sample
 
 name="net"
-columns="interface recv_kbps recv_errs recv_drop trans_kbps trans_errs trans_drop"
 
-if [ -f $new ]; then
+mv $new $old
+cat /proc/net/dev | tail +3 | tr ':|' '  ' | awk '{print $1,$2,$4,$5,$10,$12,$13}' > $new
+
+if [ -f $old ]; then
     awk -v old=$old -v interval=$interval -v maxint=$maxint '{
         getline line < old
         split(line, a)
@@ -41,9 +43,6 @@ if [ -f $new ]; then
         }
     }' $new  | while read val; do
         $dir/todb2.sh "$name" "$val"
-        sleep 1
     done
-    mv $new $old
 fi
 
-cat /proc/net/dev | tail +3 | tr ':|' '  ' | awk '{print $1,$2,$4,$5,$10,$12,$13}' > $new

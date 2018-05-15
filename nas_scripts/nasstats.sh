@@ -11,3 +11,5 @@ sleep 1
 nice -n -19 $dir/nas_ping_ext.sh
 sleep 1
 nice -n -19 $dir/nas_diskusage.sh
+sleep 1
+nice -n -19 $dir/nas_diskio.sh
