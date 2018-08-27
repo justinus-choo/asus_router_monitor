@@ -955,12 +955,6 @@
               {
                 "params": [],
                 "type": "sum"
-              },
-              {
-                "params": [
-                  "eth0_rx_errs"
-                ],
-                "type": "alias"
               }
             ]
           ],
@@ -998,12 +992,6 @@
               {
                 "params": [],
                 "type": "sum"
-              },
-              {
-                "params": [
-                  "eth0_rx_errs"
-                ],
-                "type": "alias"
               }
             ]
           ],
@@ -1041,12 +1029,6 @@
               {
                 "params": [],
                 "type": "sum"
-              },
-              {
-                "params": [
-                  "eth0_rx_errs"
-                ],
-                "type": "alias"
               }
             ]
           ],
@@ -1084,12 +1066,6 @@
               {
                 "params": [],
                 "type": "sum"
-              },
-              {
-                "params": [
-                  "eth0_rx_errs"
-                ],
-                "type": "alias"
               }
             ]
           ],
@@ -1208,12 +1184,6 @@
               {
                 "params": [],
                 "type": "sum"
-              },
-              {
-                "params": [
-                  "eth0_rx_errs"
-                ],
-                "type": "alias"
               }
             ]
           ],
@@ -1251,12 +1221,6 @@
               {
                 "params": [],
                 "type": "sum"
-              },
-              {
-                "params": [
-                  "eth0_rx_errs"
-                ],
-                "type": "alias"
               }
             ]
           ],
@@ -1294,12 +1258,6 @@
               {
                 "params": [],
                 "type": "sum"
-              },
-              {
-                "params": [
-                  "eth0_rx_errs"
-                ],
-                "type": "alias"
               }
             ]
           ],
@@ -1337,12 +1295,6 @@
               {
                 "params": [],
                 "type": "sum"
-              },
-              {
-                "params": [
-                  "eth0_rx_errs"
-                ],
-                "type": "alias"
               }
             ]
           ],
@@ -3156,5 +3108,5 @@
   "timezone": "browser",
   "title": "Synology DS918+ Stats",
   "uid": "LLNBbG8mk",
-  "version": 33
+  "version": 37
 }
