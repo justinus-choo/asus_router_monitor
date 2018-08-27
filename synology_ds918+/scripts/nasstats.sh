@@ -13,3 +13,5 @@ sleep 1
 nice -n -19 $dir/nas_diskusage.sh
 sleep 1
 nice -n -19 $dir/nas_diskio.sh
+sleep 1
+nice -n -19 $dir/nas_smart.sh
